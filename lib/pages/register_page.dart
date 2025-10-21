@@ -12,10 +12,9 @@ class _RegisterPageSate extends State<RegisterPage> {
 
   void _handleRegister() {
     if (_formKey.currentState!.validate()) {
-      // Logika registrasi (misal: panggil API)
-      // ...
+      
 
-      // Setelah berhasil, kembali ke login
+  
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Registrasi Berhasil! Silakan Login.')),
       );
