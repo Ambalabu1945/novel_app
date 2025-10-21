@@ -7,8 +7,7 @@ class HistoryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Ini hanya data dummy.
-    // Untuk data asli, Anda harus membuat sistem history di UserSession
+    
     final historyNovels = [dummyNovels[1], dummyNovels[2]];
 
     return Scaffold(
