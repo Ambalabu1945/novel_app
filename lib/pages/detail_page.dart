@@ -1,145 +1,135 @@
 import 'package:flutter/material.dart';
-import '../models/book.dart';
+import 'package:novel_app/models/novel_model.dart';
+import 'package:novel_app/pages/reader_page.dart'; // <-- Import Reader
+import 'package:novel_app/utils/animated_page_route.dart'; // <-- Import Animasi
+import 'package:novel_app/utils/user_session.dart';
+import 'package:novel_app/widgets/cover_image.dart'; // <-- Import Cover
 
-class DetailPage extends StatelessWidget {
-  const DetailPage({super.key});
+class DetailPage extends StatefulWidget {
+  final Novel novel;
+  // --- PERUBAHAN HERO TAG ---
+  final String heroTag; 
+  const DetailPage({
+    super.key, 
+    required this.novel, 
+    required this.heroTag, // <-- Tambahkan ini
+  });
+  // --- BATAS PERUBAHAN ---
+
+  @override
+  State<DetailPage> createState() => _DetailPageState();
+}
+
+class _DetailPageState extends State<DetailPage> {
+  late bool _isFavorite;
+
+  @override
+  void initState() {
+    super.initState();
+    _isFavorite = UserSession().isFavorite(widget.novel.id);
+  }
+
+  void _toggleFavorite() async {
+    await UserSession().toggleFavorite(widget.novel.id);
+    setState(() {
+      _isFavorite = UserSession().isFavorite(widget.novel.id);
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          _isFavorite ? 'Ditambahkan ke favorit' : 'Dihapus dari favorit',
+        ),
+        duration: const Duration(seconds: 1),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final Book book = ModalRoute.of(context)!.settings.arguments as Book;
-
     return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        elevation: 0,
-        title: Text(book.title),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Cover
-            ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: Image.asset(
-                book.coverUrl,
+      body: CustomScrollView( // Kita ganti agar Appbar bisa collaps
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 300.0,
+            pinned: true,
+            flexibleSpace: FlexibleSpaceBar(
+              background: CoverImage(
+                // --- PERUBAHAN HERO TAG ---
+                heroTag: widget.heroTag, // <-- Gunakan heroTag dari constructor
+                // --- BATAS PERUBAHAN ---
+                imageUrl: widget.novel.coverImageUrl,
                 width: double.infinity,
-                height: 220,
+                height: 350, // Lebih besar
                 fit: BoxFit.cover,
               ),
             ),
-            const SizedBox(height: 16),
-
-            // Title & author
-            Text(
-              book.title,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'by ${book.author}',
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // Genre, rating, release
-            Row(
-              children: [
-                Chip(
-                  label: Text(book.genre),
-                  backgroundColor: Colors.deepPurple,
-                  labelStyle: const TextStyle(color: Colors.white),
+            actions: [
+              IconButton(
+                icon: Icon(
+                  _isFavorite ? Icons.favorite : Icons.favorite_border,
+                  color: _isFavorite ? Colors.red : Colors.white,
                 ),
-                const SizedBox(width: 12),
-                Row(
-                  children: [
-                    const Icon(Icons.star, color: Colors.amber, size: 18),
-                    const SizedBox(width: 4),
-                    Text(
-                      book.rating.toStringAsFixed(1),
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                  ],
-                ),
-                const Spacer(),
-                Text(
-                  book.releaseDate,
-                  style: const TextStyle(color: Colors.grey),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // Synopsis
-            Text(
-              book.synopsis,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.white70,
-                height: 1.5,
+                onPressed: _toggleFavorite,
               ),
-            ),
-            const SizedBox(height: 16),
-
-            // Cover artist
-            Text(
-              '🎨 Cover by ${book.coverArtist}',
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.deepPurpleAccent,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // Buttons
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      book.markAsRead();
-                      Navigator.pushNamed(context, '/reader', arguments: book);
-                    },
-                    icon: const Icon(Icons.menu_book),
-                    label: const Text('READ'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepPurple,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
+            ],
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.novel.title,
+                    style: Theme.of(context).textTheme.headlineMedium,
                   ),
-                ),
-                const SizedBox(width: 12),
-                IconButton(
-                  icon: Icon(
-                    book.isFavorite ? Icons.favorite : Icons.favorite_border,
-                    color: book.isFavorite ? Colors.redAccent : Colors.white,
+                  const SizedBox(height: 8),
+                  Text(
+                    'by ${widget.novel.author}',
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
-                  onPressed: () {
-                    book.toggleFavorite();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(book.isFavorite
-                            ? 'Added to favorites ❤️'
-                            : 'Removed from favorites'),
-                        duration: const Duration(seconds: 1),
-                      ),
-                    );
-                  },
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      const Icon(Icons.star, color: Colors.amber),
+                      Text(' ${widget.novel.rating}'),
+                      const SizedBox(width: 16),
+                      Text(widget.novel.genres.join(', ')),
+                    ],
+                  ),
+                  const Divider(height: 32),
+                  Text(
+                    'Description',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    widget.novel.description,
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                  const SizedBox(height: 24),
+                  
+                  // --- TOMBOL MULAI BACA ---
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.book),
+                      label: const Text('Mulai Baca (Episode 1)'),
+                      onPressed: () {
+                        // Sekarang bisa diklik
+                        Navigator.push(
+                          context,
+                          AnimatedPageRoute(page: const ReaderPage()),
+                        );
+                      },
+                    ),
+                  )
+                  // --- BATAS PERUBAHAN ---
+                ],
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

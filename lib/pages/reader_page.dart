@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/book.dart';
+import 'package:novel_app/widgets/episode_navigation.dart';
 
 class ReaderPage extends StatefulWidget {
   const ReaderPage({super.key});
@@ -8,106 +8,138 @@ class ReaderPage extends StatefulWidget {
   State<ReaderPage> createState() => _ReaderPageState();
 }
 
-class _ReaderPageState extends State<ReaderPage> with TickerProviderStateMixin {
-  late AnimationController _fadeController;
-  late AnimationController _slideController;
-  late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
+class _ReaderPageState extends State<ReaderPage> {
+  // --- KONTROL HALAMAN (BARU) ---
+  final PageController _pageController = PageController(initialPage: 0);
+  int _currentPage = 0;
+  // --- BATAS KONTROL ---
 
-  @override
-  void initState() {
-    super.initState();
+  double _fontSize = 16.0;
 
-    _fadeController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1000),
-    );
-
-    _slideController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
-
-    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _fadeController, curve: Curves.easeIn),
-    );
-
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.2),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(parent: _slideController, curve: Curves.easeOut),
-    );
-
-    _fadeController.forward();
-    _slideController.forward();
-  }
+  // Data dummy untuk 3 chapter
+  final List<Map<String, String>> chapters = [
+    {
+      'title': 'Chapter 1: The Beginning',
+      'content': 'Ini adalah isi dari Chapter 1. Lorem ipsum dolor sit amet, consectetur adipiscing elit. ... ' * 50,
+    },
+    {
+      'title': 'Chapter 2: The Forest',
+      'content': 'Ini adalah chapter 2, petualangan dimulai. Sed ut perspiciatis unde omnis iste natus error sit voluptatem. ... ' * 50,
+    },
+    {
+      'title': 'Chapter 3: The Discovery',
+      'content': 'Ini adalah chapter 3, mereka menemukan sesuatu. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit. ... ' * 50,
+    }
+  ];
 
   @override
   void dispose() {
-    _fadeController.dispose();
-    _slideController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
+  // --- FUNGSI GANTI HALAMAN (BARU) ---
+  void _goToPage(int page) {
+    _pageController.animateToPage(
+      page,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeIn,
+    );
+  }
+  // --- BATAS FUNGSI ---
+
   @override
   Widget build(BuildContext context) {
-    final book = ModalRoute.of(context)!.settings.arguments as Book;
-
     return Scaffold(
-      backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: Colors.black,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text(
-          'Reader',
-          style: TextStyle(color: Colors.white),
-        ),
+        // Judul AppBar ganti sesuai chapter
+        title: Text(chapters[_currentPage]['title']!),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: _showSettingsDialog,
+          )
+        ],
       ),
-      body: FadeTransition(
-        opacity: _fadeAnimation,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-          child: SlideTransition(
-            position: _slideAnimation,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  book.title,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'by ${book.author}',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[400],
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Text(
-                      book.content,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.white,
-                        height: 1.6,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+      // --- GUNAKAN PAGEVIEW ---
+      body: PageView.builder(
+        controller: _pageController,
+        itemCount: chapters.length,
+        onPageChanged: (int page) {
+          // Update judul AppBar saat di-swipe
+          setState(() {
+            _currentPage = page;
+          });
+        },
+        itemBuilder: (context, index) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(20.0),
+            child: Text(
+              chapters[index]['content']!,
+              style: TextStyle(
+                fontSize: _fontSize,
+                height: 1.5,
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
+      // --- BATAS PAGEVIEW ---
+
+      // --- Hubungkan Tombol ke PageView ---
+      bottomNavigationBar: EpisodeNavigation(
+        // Nonaktifkan tombol jika di halaman pertama
+        onPrevious: _currentPage == 0 ? null : () {
+          _goToPage(_currentPage - 1);
+        },
+        // Nonaktifkan tombol jika di halaman terakhir
+        onNext: _currentPage == chapters.length - 1 ? null : () {
+          _goToPage(_currentPage + 1);
+        },
+        onChapterList: () {
+          print('Show Chapter List');
+        },
+      ),
+    );
+  }
+
+  void _showSettingsDialog() {
+    // ... (Fungsi ini tetap sama, tapi kita perlu perbaiki state management-nya)
+    
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        // Gunakan StatefulBuilder agar slider bisa di-update
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Container(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('Font Size: ${_fontSize.toInt()}'),
+                  Slider(
+                    value: _fontSize,
+                    min: 12.0,
+                    max: 30.0,
+                    divisions: 18,
+                    label: _fontSize.round().toString(),
+                    onChanged: (double value) {
+                      // Update font di halaman dan di modal
+                      setState(() {
+                        _fontSize = value;
+                      });
+                      setModalState(() {
+                        _fontSize = value;
+                      });
+                    },
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

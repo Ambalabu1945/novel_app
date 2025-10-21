@@ -1,99 +1,30 @@
 import 'package:flutter/material.dart';
-import '../utils/dummy_books.dart';
-import '../models/book.dart';
+import 'package:novel_app/utils/dummy_books.dart';
+import 'package:novel_app/widgets/novel_cart.dart';
 
 class HistoryPage extends StatelessWidget {
   const HistoryPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final List<Book> readBooks =
-        dummyBooks.where((book) => book.isRead).toList();
+    // Ini hanya data dummy.
+    // Untuk data asli, Anda harus membuat sistem history di UserSession
+    final historyNovels = [dummyNovels[1], dummyNovels[2]];
 
     return Scaffold(
-      backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: Colors.black,
-        elevation: 0,
         title: const Text('Reading History'),
       ),
-      body: readBooks.isEmpty
+      body: historyNovels.isEmpty
           ? const Center(
-              child: Text(
-                'You haven’t read anything yet 📭',
-                style: TextStyle(color: Colors.grey),
-              ),
+              child: Text('Anda belum membaca novel apapun.'),
             )
           : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: readBooks.length,
+              padding: const EdgeInsets.all(16.0),
+              itemCount: historyNovels.length,
               itemBuilder: (context, index) {
-                final book = readBooks[index];
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.pushNamed(context, '/detail', arguments: book);
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[900],
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Row(
-                      children: [
-                        // Cover
-                        ClipRRect(
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(16),
-                            bottomLeft: Radius.circular(16),
-                          ),
-                          child: Image.asset(
-                            book.coverUrl,
-                            width: 100,
-                            height: 140,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-
-                        // Info
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  book.title,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'by ${book.author}',
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Last read: Chapter 1',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.white70,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
+                final novel = historyNovels[index];
+                return NovelCart(novel: novel);
               },
             ),
     );

@@ -1,104 +1,57 @@
 import 'package:flutter/material.dart';
-import '../utils/dummy_books.dart';
-import '../models/book.dart';
+import 'package:novel_app/models/novel_model.dart';
+import 'package:novel_app/utils/dummy_books.dart';
+import 'package:novel_app/utils/user_session.dart';
+import 'package:novel_app/widgets/novel_cart.dart';
 
-class FavoritesPage extends StatelessWidget {
+class FavoritesPage extends StatefulWidget {
   const FavoritesPage({super.key});
 
   @override
+  State<FavoritesPage> createState() => _FavoritesPageState();
+}
+
+class _FavoritesPageState extends State<FavoritesPage> {
+  // Hapus list _favoriteNovels dari sini
+
+  // --- INI PERBAIKANNYA ---
+  // Kita tidak pakai initState, tapi langsung ambil data di dalam build
+  // agar datanya selalu terbaru setiap kali tab ini dibuka.
+  List<Novel> _loadFavorites() {
+    final favIds = UserSession().getFavorites();
+    return dummyNovels.where((novel) {
+      return favIds.contains(novel.id);
+    }).toList();
+  }
+  // --- BATAS PERBAIKAN ---
+
+  @override
   Widget build(BuildContext context) {
-    final List<Book> favoriteBooks =
-        dummyBooks.where((book) => book.isFavorite).toList();
+    // Panggil fungsi _loadFavorites() SETIAP KALI build
+    final List<Novel> favoriteNovels = _loadFavorites();
 
     return Scaffold(
-      backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: Colors.black,
-        elevation: 0,
         title: const Text('My Favorites'),
+        backgroundColor: Theme.of(context).colorScheme.background,
       ),
-      body: favoriteBooks.isEmpty
+      body: favoriteNovels.isEmpty
           ? const Center(
-              child: Text(
-                'No favorites yet 💔',
-                style: TextStyle(color: Colors.grey),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.favorite_border, size: 80, color: Colors.grey),
+                  SizedBox(height: 16),
+                  Text('Anda belum memiliki novel favorit.'),
+                ],
               ),
             )
           : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: favoriteBooks.length,
+              padding: const EdgeInsets.all(16.0),
+              itemCount: favoriteNovels.length,
               itemBuilder: (context, index) {
-                final book = favoriteBooks[index];
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.pushNamed(context, '/detail', arguments: book);
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[900],
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Row(
-                      children: [
-                        // Cover
-                        ClipRRect(
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(16),
-                            bottomLeft: Radius.circular(16),
-                          ),
-                          child: Image.asset(
-                            book.coverUrl,
-                            width: 100,
-                            height: 140,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-
-                        // Info
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  book.title,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'by ${book.author}',
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  children: [
-                                    const Icon(Icons.star,
-                                        color: Colors.amber, size: 16),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      book.rating.toStringAsFixed(1),
-                                      style:
-                                          const TextStyle(color: Colors.white),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
+                final novel = favoriteNovels[index];
+                return NovelCart(novel: novel);
               },
             ),
     );

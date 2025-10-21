@@ -1,31 +1,33 @@
 import 'package:flutter/material.dart';
 
+// Ini adalah widget kustom (OOP)
 class RatingStars extends StatelessWidget {
   final double rating;
-  final double size;
-  final Color color;
-
+  final double starSize;
+  
   const RatingStars({
     super.key,
     required this.rating,
-    this.size = 16,
-    this.color = Colors.amber,
+    this.starSize = 16.0,
   });
 
   @override
   Widget build(BuildContext context) {
-    final int fullStars = rating.floor();
-    final bool hasHalfStar = rating - fullStars >= 0.5;
+    int fullStars = rating.floor();
+    bool hasHalfStar = (rating - fullStars) >= 0.5;
 
     return Row(
-      mainAxisSize: MainAxisSize.min,
+      mainAxisSize: MainAxisSize.min, // Agar row tidak memakan tempat
       children: List.generate(5, (index) {
         if (index < fullStars) {
-          return Icon(Icons.star, size: size, color: color);
+          // Bintang Penuh
+          return Icon(Icons.star, color: Colors.amber, size: starSize);
         } else if (index == fullStars && hasHalfStar) {
-          return Icon(Icons.star_half, size: size, color: color);
+          // Bintang Setengah
+          return Icon(Icons.star_half, color: Colors.amber, size: starSize);
         } else {
-          return Icon(Icons.star_border, size: size, color: color);
+          // Bintang Kosong
+          return Icon(Icons.star_border, color: Colors.amber, size: starSize);
         }
       }),
     );

@@ -1,44 +1,47 @@
 import 'package:flutter/material.dart';
 
-class GenreFilter extends StatelessWidget {
-  final List<String> genres;
-  final String selectedGenre;
-  final Function(String) onGenreSelected;
+class GenreFilter extends StatefulWidget {
+  final List<String> allGenres;
+  final Function(String?) onGenreSelected;
 
   const GenreFilter({
     super.key,
-    required this.genres,
-    required this.selectedGenre,
+    required this.allGenres,
     required this.onGenreSelected,
   });
 
   @override
+  State<GenreFilter> createState() => _GenreFilterState();
+}
+
+class _GenreFilterState extends State<GenreFilter> {
+  String? _selectedGenre;
+
+  @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 40,
+      height: 50,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: genres.length,
+        itemCount: widget.allGenres.length + 1, // +1 untuk "All"
         itemBuilder: (context, index) {
-          final genre = genres[index];
-          final isSelected = genre == selectedGenre;
+          final bool isAllCategory = index == 0;
+          final String genre = isAllCategory ? 'All' : widget.allGenres[index - 1];
+          final bool isSelected = _selectedGenre == genre || (_selectedGenre == null && isAllCategory);
 
-          return GestureDetector(
-            onTap: () => onGenreSelected(genre),
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: isSelected ? Colors.deepPurple : Colors.grey[800],
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                genre,
-                style: TextStyle(
-                  color: isSelected ? Colors.white : Colors.grey[300],
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: ChoiceChip(
+              label: Text(genre),
+              selected: isSelected,
+              onSelected: (bool selected) {
+                setState(() {
+                  if (selected) {
+                    _selectedGenre = isAllCategory ? null : genre;
+                    widget.onGenreSelected(_selectedGenre);
+                  }
+                });
+              },
             ),
           );
         },

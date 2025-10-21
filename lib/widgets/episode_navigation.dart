@@ -1,61 +1,39 @@
 import 'package:flutter/material.dart';
 
 class EpisodeNavigation extends StatelessWidget {
-  final VoidCallback onPrevious;
-  final VoidCallback onNext;
-  final int currentEpisode;
-  final int totalEpisodes;
+  // Ubah tipe data, sekarang bisa null
+  final VoidCallback? onPrevious; 
+  final VoidCallback? onNext;
+  final VoidCallback onChapterList;
 
   const EpisodeNavigation({
     super.key,
     required this.onPrevious,
     required this.onNext,
-    required this.currentEpisode,
-    required this.totalEpisodes,
+    required this.onChapterList,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 20),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.grey[850],
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
+    return BottomAppBar(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          Text(
-            'Episode $currentEpisode of $totalEpisodes',
-            style: const TextStyle(color: Colors.white, fontSize: 14),
+          IconButton(
+            icon: const Icon(Icons.arrow_back),
+            // Jika onPressed null, tombol akan otomatis disabled (warna abu-abu)
+            onPressed: onPrevious, 
+            tooltip: 'Previous Chapter',
           ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              ElevatedButton.icon(
-                onPressed: onPrevious,
-                icon: const Icon(Icons.arrow_back),
-                label: const Text('Previous'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-              ),
-              ElevatedButton.icon(
-                onPressed: onNext,
-                icon: const Icon(Icons.arrow_forward),
-                label: const Text('Next'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-              ),
-            ],
+          IconButton(
+            icon: const Icon(Icons.list),
+            onPressed: onChapterList,
+            tooltip: 'Chapter List',
+          ),
+          IconButton(
+            icon: const Icon(Icons.arrow_forward),
+            onPressed: onNext, // Otomatis disabled jika null
+            tooltip: 'Next Chapter',
           ),
         ],
       ),

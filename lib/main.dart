@@ -1,65 +1,67 @@
 import 'package:flutter/material.dart';
-import 'pages/splash_screen.dart';
-import 'pages/login_page.dart';
-import 'pages/register_page.dart';
-import 'pages/home_page.dart';
-import 'pages/detail_page.dart';
-import 'pages/reader_page.dart';
-import 'pages/profille_page.dart';
-import 'pages/favorites_page.dart';
-import 'pages/history_page.dart';
+// Ganti 'novel_app' dengan nama project Anda jika berbeda
+import 'package:novel_app/pages/splash_screen.dart'; 
+import 'package:novel_app/utils/user_session.dart';
 
-void main() {
-  runApp(const MyNovelApp());
+Future<void> main() async {
+  // Pastikan binding Flutter sudah siap
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Inisialisasi UserSession (shared_preferences) sebelum app berjalan
+  await UserSession().init(); 
+  
+  runApp(const MyApp());
 }
 
-class MyNovelApp extends StatelessWidget {
-  const MyNovelApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Skema warna baru yang lebih bagus dan kontras
+    final ColorScheme kColorScheme = ColorScheme.fromSeed(
+      seedColor: Colors.amber, // Warna aksen utama
+      brightness: Brightness.dark,
+      background: const Color(0xFF121212), // Background charcoal
+      surface: const Color(0xFF1E1E1E), // Warna untuk Card & Appbar
+    );
+
     return MaterialApp(
-      title: 'MYNOVEL_APP',
-      debugShowCheckedModeBanner: false,
+      title: 'Novel App',
       theme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: Colors.black,
-        fontFamily: 'Poppins',
-        textTheme: const TextTheme(
-          bodyLarge: TextStyle(color: Colors.white),
-          bodyMedium: TextStyle(color: Colors.white70),
-        ),
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: Colors.grey[900],
-          labelStyle: const TextStyle(color: Colors.grey),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+        useMaterial3: true,
+        colorScheme: kColorScheme,
+        
+        // Tampilan AppBar yang konsisten
+        appBarTheme: AppBarTheme(
+          backgroundColor: kColorScheme.surface, // Warna AppBar
+          centerTitle: true,
+          elevation: 0,
+        ), // <-- Koma pemisah
+
+        // Tampilan Card yang baru (sudah diperbaiki)
+        cardTheme: CardThemeData(
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0),
           ),
         ),
+
+        // Tampilan Tombol
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.deepPurple,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 16),
+            backgroundColor: kColorScheme.primary, // Warna tombol
+            foregroundColor: kColorScheme.onPrimary, // Warna teks tombol
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(8.0),
             ),
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
           ),
         ),
-      ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const SplashScreen(),
-        '/login': (context) => const LoginPage(),
-        '/register': (context) => const RegisterPage(),
-        '/home': (context) => const HomePage(),
-        '/detail': (context) => const DetailPage(),
-        '/reader': (context) => const ReaderPage(),
-        '/profile': (context) => const ProfilePage(),
-        '/favorites': (context) => const FavoritesPage(),
-        '/history': (context) => const HistoryPage(),
-      },
+        
+      ), // <-- Kurung tutup untuk ThemeData
+      debugShowCheckedModeBanner: false,
+      home: const SplashScreen(), // Mulai dari Splash Screen
     );
   }
 }

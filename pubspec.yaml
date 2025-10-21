@@ -1,29 +1,72 @@
-name: mynovel_app
-description: A cinematic Flutter novel app with favorites, history, and immersive reader.
-publish_to: 'none'
+name: novel_app # Ganti 'novel_app' dengan nama project Anda
+description: "A new Flutter project for a novel reading app."
+
+# Mencegah publish tidak sengaja ke pub.dev
+publish_to: 'none' 
 
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: '>=3.0.0 <4.0.0' # Menggunakan SDK Dart 3+
 
+# --- DEPENDENCIES ---
+# Ini adalah paket-paket yang dibutuhkan aplikasi Anda
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.6
 
+  # Paket ikon default
+  cupertino_icons: ^1.0.2
+
+  # --- Paket yang Anda minta ---
+  
+  # 1. Untuk menyimpan data (INI YANG KITA GUNAKAN)
+  shared_preferences: ^2.2.3 
+  
+  # 2. Untuk format tanggal, mata uang, dll.
+  intl: ^0.19.0 
+  
+  # 3. Kumpulan komponen UI
+  getwidget: ^4.0.0
+  
+  # 4. Untuk menampilkan halaman web di dalam app
+  webview_flutter: ^4.7.0
+  
+  # 5. Untuk mendapatkan info hardware perangkat
+  device_info_plus: ^10.1.0
+
+
+# --- DEV DEPENDENCIES ---
+# Ini adalah paket untuk testing dan development
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.1
 
+  # Paket untuk 'linting' (menganalisis kode agar rapi)
+  flutter_lints: ^4.0.0
+
+# --- KONFIGURASI FLUTTER ---
 flutter:
+
+  # Mengaktifkan penggunaan Material Design (termasuk Material 3)
   uses-material-design: true
 
+  # --- ASET GAMBAR ---
+  # Bagian ini PENTING agar gambar Anda bisa dimuat
   assets:
-    - assets/images/logo.png
-    - assets/images/knight.jpg
-    - assets/images/healer.jpg
-    - assets/images/wizard.jpg
-    - assets/images/tank.jpg
-    - assets/images/assassin.jpg
+    - assets/images/ # <-- Ini akan memuat SEMUA file di dalam folder images
+    # - assets/images/assassin.jpg # Anda bisa juga satu per satu
+    # - assets/images/healer.jpg
+    # - assets/images/knight.jpg
+    # - assets/images/logo.png
+    # - assets/images/tank.jpg
+    # - assets/images/wizard.jpg
+
+  # --- FONT KUSTOM (Opsional) ---
+  # Jika Anda punya font kustom, aktifkan bagian ini
+  # fonts:
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
