@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:novel_app/pages/home_page.dart'; // Nanti kita buat
-import 'package:novel_app/pages/login_page.dart'; // Asumsi Anda punya ini
+import 'package:novel_app/pages/home_page.dart'; 
+import 'package:novel_app/pages/login_page.dart'; 
 import 'package:novel_app/utils/user_session.dart';
 
 class SplashScreen extends StatefulWidget {
